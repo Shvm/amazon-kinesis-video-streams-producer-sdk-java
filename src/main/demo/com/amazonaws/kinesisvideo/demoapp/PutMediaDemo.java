@@ -41,11 +41,11 @@ import java.util.concurrent.CountDownLatch;
  *      ffmpeg -i input.mp4 -b:v 10M -minrate 10M -maxrate 10M -bufsize 10M -bf 0 input.mkv
  */
 public final class PutMediaDemo {
-    private static final String DEFAULT_REGION = "us-west-2";
+    private static final String DEFAULT_REGION = "us-east-1";
     private static final String PUT_MEDIA_API = "/putMedia";
 
     /* the name of the stream */
-    private static final String STREAM_NAME = "my-stream";
+    private static final String STREAM_NAME = "streamProcessorForCam";
 
     /* sample MKV file */
     private static final String MKV_FILE_PATH = "src/main/resources/data/mkv/clusters.mkv";

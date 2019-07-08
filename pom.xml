@@ -24,6 +24,10 @@
             <id>lib</id>
             <url>file://${project.basedir}/lib</url>
         </repository>
+        <repository>
+            <id>localrepository</id>
+            <url>file://Users/shivam.sahu/.m2/repository/repo</url>
+        </repository>
     </repositories>
 
     <developers>
@@ -60,6 +64,31 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jcodec</groupId>
+            <artifactId>jcodec</artifactId>
+            <version>0.1.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jcodec</groupId>
+            <artifactId>jcodec-javase</artifactId>
+            <version>0.1.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.sarxos</groupId>
+            <artifactId>webcam-capture</artifactId>
+            <version>0.3.11</version>
+        </dependency>
+        <dependency>
+            <groupId>xuggle</groupId>
+            <artifactId>xuggle-xuggler</artifactId>
+            <version>5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.netty</groupId>
+            <artifactId>netty</artifactId>
+            <version>3.2.0.Final</version>
+        </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-core</artifactId>
