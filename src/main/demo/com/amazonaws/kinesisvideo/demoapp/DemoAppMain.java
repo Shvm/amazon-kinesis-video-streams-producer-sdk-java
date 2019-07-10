@@ -1,16 +1,21 @@
 package com.amazonaws.kinesisvideo.demoapp;
 
 import com.amazonaws.kinesisvideo.client.KinesisVideoClient;
-import com.amazonaws.kinesisvideo.demoapp.contants.DemoTrackInfos;
+import com.amazonaws.kinesisvideo.client.mediasource.CameraMediaSourceConfiguration;
 import com.amazonaws.kinesisvideo.internal.client.mediasource.MediaSource;
+import com.amazonaws.kinesisvideo.internal.client.mediasource.MediaSourceConfiguration;
+import com.amazonaws.kinesisvideo.demoapp.contants.DemoTrackInfos;
 import com.amazonaws.kinesisvideo.common.exception.KinesisVideoException;
 import com.amazonaws.kinesisvideo.demoapp.auth.AuthHelper;
 import com.amazonaws.kinesisvideo.java.client.KinesisVideoJavaClientFactory;
+import com.amazonaws.kinesisvideo.java.mediasource.camera.CameraMediaSource;
 import com.amazonaws.kinesisvideo.java.mediasource.file.AudioVideoFileMediaSource;
 import com.amazonaws.kinesisvideo.java.mediasource.file.AudioVideoFileMediaSourceConfiguration;
 import com.amazonaws.kinesisvideo.java.mediasource.file.ImageFileMediaSource;
 import com.amazonaws.kinesisvideo.java.mediasource.file.ImageFileMediaSourceConfiguration;
+import com.amazonaws.kinesisvideo.producer.StreamInfo;
 import com.amazonaws.regions.Regions;
+import com.github.sarxos.webcam.Webcam;
 
 import static com.amazonaws.kinesisvideo.util.StreamInfoConstants.ABSOLUTE_TIMECODES;
 
@@ -19,8 +24,9 @@ import static com.amazonaws.kinesisvideo.util.StreamInfoConstants.ABSOLUTE_TIMEC
  */
 public final class DemoAppMain {
     // Use a different stream name when testing audio/video sample
-    private static final String STREAM_NAME = "my-stream";
+    private static final String STREAM_NAME = "newStreamProcessor222";
     private static final int FPS_25 = 25;
+    private static final int FPS_19 = 19;
     private static final int RETENTION_ONE_HOUR = 1;
     private static final String IMAGE_DIR = "src/main/resources/data/h264/";
     private static final String FRAME_DIR = "src/main/resources/data/audio-video-frames";
@@ -40,12 +46,12 @@ public final class DemoAppMain {
             // create Kinesis Video high level client
             final KinesisVideoClient kinesisVideoClient = KinesisVideoJavaClientFactory
                     .createKinesisVideoClient(
-                            Regions.US_WEST_2,
+                            Regions.US_EAST_1,
                             AuthHelper.getSystemPropertiesCredentialsProvider());
 
             // create a media source. this class produces the data and pushes it into
             // Kinesis Video Producer lower level components
-            final MediaSource mediaSource = createImageFileMediaSource();
+            final MediaSource mediaSource = createCameraMediaSource();
 
             // Audio/Video sample is available for playback on HLS (Http Live Streaming)
             //final MediaSource mediaSource = createFileMediaSource();
@@ -96,6 +102,37 @@ public final class DemoAppMain {
         final AudioVideoFileMediaSource mediaSource = new AudioVideoFileMediaSource(STREAM_NAME);
         mediaSource.configure(configuration);
 
+        return mediaSource;
+    }
+
+    private static MediaSource createCameraMediaSource() {
+
+        Webcam webcam = Webcam.getDefault();
+
+        byte[] cpd = { 0x01, 0x42, 0x00, 0x20, (byte) 0xff, (byte) 0xe1, 0x00, 0x23, 0x27, 0x42, 0x00, 0x20,
+                (byte) 0x89, (byte) 0x8b, 0x60, 0x28, 0x02, (byte) 0xdd, (byte) 0x80, (byte) 0x9e, 0x00, 0x00,
+                0x4e, 0x20, 0x00, 0x0f, 0x42, 0x41, (byte) 0xc0, (byte) 0xc0, 0x01, 0x77, 0x00, 0x00, 0x5d,
+                (byte) 0xc1, 0x7b, (byte) 0xdf, 0x07, (byte) 0xc2, 0x21, 0x1b, (byte) 0x80, 0x01, 0x00, 0x04,
+                0x28, (byte) 0xce, 0x1f, 0x20 };
+        byte[] arr = new byte[0];
+        final CameraMediaSourceConfiguration configuration =
+                new CameraMediaSourceConfiguration.Builder()
+                        .withFrameRate(FPS_19)
+                        .withRetentionPeriodInHours(1)
+                        .withCameraId("/dev/video0")
+                        .withIsEncoderHardwareAccelerated(false)
+                        .withEncodingMimeType("video/avc")
+                        .withNalAdaptationFlags(StreamInfo.NalAdaptationFlags.NAL_ADAPTATION_FLAG_NONE)
+                        .withIsAbsoluteTimecode(false)
+                        .withEncodingBitRate(200000)
+                        .withHorizontalResolution(640)
+                        .withVerticalResolution(480)
+                        .withCodecPrivateData(cpd)
+                        .build();
+
+        final CameraMediaSource mediaSource = new CameraMediaSource(STREAM_NAME);
+        mediaSource.setupWebCam(webcam);
+        mediaSource.configure(configuration);
         return mediaSource;
     }
 }
